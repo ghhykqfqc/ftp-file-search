@@ -4,7 +4,7 @@ name: Daily Scheduled Task (Beijing Time 07:20)
 on:
   schedule:
     # 关键：设置为 UTC 时间 23:20，对应北京时间第二天早上 7:20
-    - cron: '20 23 * * *'
+    - cron: '20 19 * * *'
 
   # 保留手动触发功能，方便测试和调试
   workflow_dispatch:
@@ -36,5 +36,5 @@ jobs:
         FTP_IP: ${{ secrets.FTP_IP }}
         FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        send_key: ${{ secrets.send_key }}
+        SEND_KEY: ${{ secrets.SEND_KEY }}
       run: python FtpFileSearch.py # 请务必替换成您的实际脚本文件名
