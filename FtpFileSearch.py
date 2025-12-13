@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import messagebox
+from zoneinfo import ZoneInfo
 import requests
 import re
 
@@ -31,7 +32,7 @@ def get_file_stat(ftp, filename):
         month = month_map[month_str]
 
         # 获取今天的日期（年份 + 月份 + 日期）
-        today = datetime.now()
+        today = datetime.now(ZoneInfo('Asia/Shanghai'))
         year = today.year
         modify_date = datetime(year, month, int(day_str))
 
@@ -78,7 +79,7 @@ def get_arrive_time_from_line(line, expected_filename):
     month = month_map[month_str]
 
     # 获取今天的日期（年份 + 月份 + 日期）
-    today = datetime.now()
+    today = datetime.now(ZoneInfo('Asia/Shanghai'))
     year = today.year
     modify_date = datetime(year, month, int(day_str))
 
@@ -163,7 +164,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
                     # 该账单文件已找到，生成描述并发送通知
                     print(f"{file_name}已存在")
-                    search_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    search_time = datetime.now(ZoneInfo('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
                     account_date = datetime.strptime(last_day, "%Y%m%d").strftime("%Y-%m-%d")
                     file_desp = f"{bill_type}账单{file_name} | 查询时间：{search_time} | 账单日：{account_date}"
                     print(f"{file_desp}")
@@ -223,7 +224,7 @@ if __name__ == "__main__":
     ftp_base_url = "/build"    # FTP 上的目标文件夹路径
     
     # 计算昨天的日期
-    now = datetime.now()
+    now = datetime.now(ZoneInfo('Asia/Shanghai'))
     daydelta = timedelta(days=1)
     last_time = now - daydelta
     last_day = last_time.strftime("%Y%m%d")
