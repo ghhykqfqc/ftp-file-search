@@ -4,7 +4,7 @@ name: Daily Scheduled Task (Beijing Time 07:20)
 on:
   schedule:
     # 关键：设置为 UTC 时间 23:20，对应北京时间第二天早上 7:20
-    - cron: '20 19 * * *'
+    - cron: '20 23 * * *'
 
   # 保留手动触发功能，方便测试和调试
   workflow_dispatch:
