@@ -97,7 +97,7 @@ def send_message(title, desp):
     # }
 
     # Bark 含标题消息推送
-    send_key = os.getenv('send_key')
+    send_key = os.getenv('SEND_KEY')
     url = f"https://api.day.app/{send_key}/{title}/{desp}"
     response = requests.post(url)
     return response.json()
@@ -105,7 +105,7 @@ def send_message(title, desp):
 
 def send_sound():
     # Bark 推送响铃
-    send_key = os.getenv('send_key')
+    send_key = os.getenv('SEND_KEY')
     url = f"https://api.day.app/{send_key}/重要警告?level=critical&volume=8"
     response = requests.post(url)
     return response.json()
