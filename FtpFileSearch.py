@@ -205,7 +205,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                 print("所有文件均已找到，定时器关闭")
                 break
 
-            # 等待固定时间后重新检查
+            # 等待固定时间后重新检查 循环范围while True内
             time.sleep(timeSleepInterval)
             print("重新检查文件...")
 
