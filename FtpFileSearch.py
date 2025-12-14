@@ -158,7 +158,9 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
 
             # 检查文件是否存在
             all_files_exist = True
-            for bill_type in bill_types:
+            still_not_found = []
+            search_bill_types = still_not_found if still_not_found else bill_types
+            for bill_type in search_bill_types:
                 file_name = f"10220014420000_{last_day}_{bill_type}.txt"
 
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
@@ -194,6 +196,8 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                 else:
                     # 该账单文件暂无
                     print(f"{file_name}不存在")
+                    if bill_type not in still_not_found:  # 添加到 still_not_found 列表中
+                        still_not_found.append(bill_type)
                     all_files_exist = False
 
             # 如果所有文件都存在，则退出循环
