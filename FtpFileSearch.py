@@ -148,6 +148,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
         target_dir = f"{ftp_base_url}"
         ftp.cwd(target_dir)
         print(f"切换到目录: {target_dir}\n 每{timeSleepInterval}秒检查一次账单文件是否存在\n...")
+        still_not_found = []
 
         while True:
             # 获取目录下的文件列表
@@ -158,9 +159,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
 
             # 检查文件是否存在
             all_files_exist = True
-            still_not_found = []
-            search_bill_types = still_not_found if still_not_found else bill_types
-            for bill_type in search_bill_types:
+            for bill_type in bill_types:
                 file_name = f"10220014420000_{last_day}_{bill_type}.txt"
 
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
@@ -171,20 +170,21 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                     file_desp = f"{bill_type}账单{file_name} | 查询时间：{search_time} | 账单日：{account_date}"
                     print(f"{file_desp}")
 
-                    # show_message("账单通知", file_desp)
+                    if bill_type not in still_not_found:  # 不存在的账单 才发送通知
+                        # show_message("账单通知", file_desp)
 
-                    # 使用 消息推送服务 暂用Bark
-                    messageResult = send_message(f"{bill_type}账单通知", file_desp)
-                    if messageResult["code"] == 200:
-                        print(f"消息发送成功")
-                    else:
-                        print(f"消息发送失败：{messageResult['message']}")
+                        # 使用 消息推送服务 暂用Bark
+                        messageResult = send_message(f"{bill_type}账单通知", file_desp)
+                        if messageResult["code"] == 200:
+                            print(f"消息发送成功")
+                        else:
+                            print(f"消息发送失败：{messageResult['message']}")
 
-                    soundResult = send_sound()
-                    if soundResult["code"] == 200:
-                        print(f"响铃发送成功")
-                    else:
-                        print(f"响铃发送失败：{soundResult['message']}")
+                        soundResult = send_sound()
+                        if soundResult["code"] == 200:
+                            print(f"响铃发送成功")
+                        else:
+                            print(f"响铃发送失败：{soundResult['message']}")
                     
                     # 获取目录下的文件列表（使用 LIST 命令）
                     arrive_time = None
