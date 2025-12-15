@@ -161,15 +161,14 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
             all_files_exist = True
             for bill_type in bill_types:
                 file_name = f"10220014420000_{last_day}_{bill_type}.txt"
+                search_time = datetime.now(ZoneInfo('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
+                account_date = datetime.strptime(last_day, "%Y%m%d").strftime("%Y-%m-%d")
+                print(f"--当前时间：{search_time} | 账单日：{account_date} | 正在检查{bill_type}账单{file_name}--")
 
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
                     # 该账单文件已找到，生成描述并发送通知
-                    print(f"{file_name}已存在")
-                    search_time = datetime.now(ZoneInfo('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
-                    account_date = datetime.strptime(last_day, "%Y%m%d").strftime("%Y-%m-%d")
-                    file_desp = f"{bill_type}账单{file_name} | 查询时间：{search_time} | 账单日：{account_date}"
-                    print(f"{file_desp}")
-
+                    file_desp = f"{bill_type}账单{file_name}--已存在\n查询时间：{search_time}\n账单日：{account_date}"
+                    print(f"{file_name}--{bill_type}账单--已存在")
                     if bill_type not in still_not_found:  # 不存在的账单 才发送通知
                         still_not_found.append(bill_type)
 
@@ -197,7 +196,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                     print(f"{bill_type}账单到达时间：{arrive_time}\n\n")
                 else:
                     # 该账单文件暂无
-                    print(f"{file_name}不存在")
+                    print(f"{file_name}--{bill_type}账单--不存在")
                     all_files_exist = False
 
             # 如果所有文件都存在，则退出循环
@@ -207,7 +206,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
 
             # 等待固定时间后重新检查 循环范围while True内
             time.sleep(timeSleepInterval)
-            print("重新检查文件...")
+            print("---重新检查文件...")
 
     except ftplib.all_errors as e:
         print(f"FTP 操作失败: {e}")
