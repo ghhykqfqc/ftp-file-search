@@ -46,6 +46,7 @@ def get_file_stat(ftp, filename):
     
     return None
 
+# 通过目录下的文件列表匹配文件名解析到达时间（使用 LIST 命令）
 def get_arrive_time_from_line(line, expected_filename):
     """
     解析 ftp LIST 命令返回的一行，提取文件名和修改时间
@@ -88,6 +89,7 @@ def get_arrive_time_from_line(line, expected_filename):
 
     return modify_time
 
+# Bark 含标题消息推送
 def send_message(title, desp):
     # server酱 微信服务号推送
     # sendkey = "xxx"
@@ -104,23 +106,13 @@ def send_message(title, desp):
     return response.json()
 
 
+# Bark 响铃推送
 def send_sound():
-    # Bark 推送响铃
+    # Bark 推送重要警告
     send_key = os.getenv('SEND_KEY')
     url = f"https://api.day.app/{send_key}/重要警告?level=critical&volume=8"
     response = requests.post(url)
     return response.json()
-# 定义提示框函数
-def show_message(title, message):
-    """
-    显示提示框
-    :param title: 提示框标题
-    :param message: 提示框内容
-    """
-    root = tk.Tk()
-    root.withdraw()  # 隐藏主窗口
-    messagebox.showinfo(title, message)
-    root.destroy()
 
 
 def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url, last_day, bill_types):
@@ -148,7 +140,8 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
         target_dir = f"{ftp_base_url}"
         ftp.cwd(target_dir)
         print(f"切换到目录: {target_dir}\n 每{timeSleepInterval}秒检查一次账单文件是否存在\n...")
-        still_not_found = []
+        has_found_types = []
+        arrive_times = dict()
 
         while True:
             # 获取目录下的文件列表
@@ -163,16 +156,16 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                 file_name = f"10220014420000_{last_day}_{bill_type}.txt"
                 search_time = datetime.now(ZoneInfo('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
                 account_date = datetime.strptime(last_day, "%Y%m%d").strftime("%Y-%m-%d")
+                
                 print(f"--当前时间：{search_time} | 账单日：{account_date} | 正在检查{bill_type}账单{file_name}--")
 
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
                     # 该账单文件已找到，生成描述并发送通知
                     file_desp = f"{bill_type}账单{file_name}--已存在\n查询时间：{search_time}\n账单日：{account_date}"
                     print(f"{file_name}--{bill_type}账单--已存在")
-                    if bill_type not in still_not_found:  # 不存在的账单 才发送通知
-                        still_not_found.append(bill_type)
-
-                        # show_message("账单通知", file_desp)
+                    if bill_type not in has_found_types:  # 存在的账单 仅发送一次通知 通过已找到类型列表记录防重
+                        has_found_types.append(bill_type)
+                        arrive_time = None
 
                         # 使用 消息推送服务 暂用Bark
                         messageResult = send_message(f"{bill_type}账单通知", file_desp)
@@ -187,13 +180,16 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                         else:
                             print(f"响铃发送失败：{soundResult['message']}")
                     
-                    # 获取目录下的文件列表（使用 LIST 命令）
-                    arrive_time = None
-                    for line in file_lines:
-                        arrive_time = get_arrive_time_from_line(line, file_name)
-                        if arrive_time:
-                            break
-                    print(f"{bill_type}账单到达时间：{arrive_time}\n\n")
+                        # 仅获取一次账单到达时间
+                        for line in file_lines:
+                            # 通过目录下的文件列表匹配文件名解析到达时间
+                            arrive_time = get_arrive_time_from_line(line, file_name)
+                            if arrive_time:
+                                arrive_times.update({bill_type: arrive_time})
+                                break
+                    # 检查bill_type账单的arrive_time是否存在
+                    if bill_type in arrive_times:
+                        print(f"{bill_type}账单到达时间：{arrive_times.get(bill_type)}\n")
                 else:
                     # 该账单文件暂无
                     print(f"{file_name}--{bill_type}账单--不存在")
@@ -206,7 +202,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
 
             # 等待固定时间后重新检查 循环范围while True内
             time.sleep(timeSleepInterval)
-            print("---重新检查文件...")
+            print("\n\n---重新检查文件...")
 
     except ftplib.all_errors as e:
         print(f"FTP 操作失败: {e}")
