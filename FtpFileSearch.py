@@ -161,14 +161,14 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
 
                 if file_name in file_list:  # 使用 nlst() 方法检查文件是否存在
                     # 该账单文件已找到，生成描述并发送通知
-                    file_desp = f"{bill_type}账单{file_name}--已存在\n查询时间：{search_time}\n账单日：{account_date}"
+                    file_desp = f"{bill_type}账单{file_name}--存在\n查询时间：{search_time}\n账单日：{account_date}"
                     print(f"{file_name}--{bill_type}账单--已存在")
                     if bill_type not in has_found_types:  # 存在的账单 仅发送一次通知 通过已找到类型列表记录防重
                         has_found_types.append(bill_type)
                         arrive_time = None
 
                         # 使用 消息推送服务 暂用Bark
-                        messageResult = send_message(f"{bill_type}账单通知", file_desp)
+                        messageResult = send_message(f"{search_time} | {bill_type}账单通知", file_desp)
                         if messageResult["code"] == 200:
                             print(f"消息发送成功")
                         else:
@@ -192,7 +192,7 @@ def process_ftp_files(ftp_ip, ftp_port, ftp_username, ftp_password, ftp_base_url
                         print(f"{bill_type}账单到达时间：{arrive_times.get(bill_type)}\n")
                 else:
                     # 该账单文件暂无
-                    print(f"{file_name}--{bill_type}账单--不存在")
+                    print(f"{file_name}--{bill_type}账单--暂无")
                     all_files_exist = False
 
             # 如果所有文件都存在，则退出循环
