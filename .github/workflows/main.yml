@@ -1,5 +1,5 @@
 # .github/workflows/deploy.yml
-name: Daily Scheduled Task (Beijing Time 07:30)
+name: Daily Scheduled Task (Beijing Time 07:20)
 
 on:
   schedule:
