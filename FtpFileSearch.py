@@ -220,7 +220,7 @@ if __name__ == "__main__":
     ftp_username = os.getenv('FTP_USERNAME')   # 替换为实际 FTP 用户名
     ftp_password = os.getenv('FTP_PASSWORD')   # 替换为实际 FTP 密码
 
-    ftp_base_url = "/build/trans"    # FTP 上的目标文件夹路径
+    ftp_base_url = "/build"    # FTP 上的目标文件夹路径
     
     # 计算昨天的日期
     now = datetime.now(ZoneInfo('Asia/Shanghai'))
